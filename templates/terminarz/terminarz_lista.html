@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Lista Spotkań{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Lista Spotkań</h1>
+
+    <a href="{{ url_for('terminarz_bp.dodaj_spotkanie') }}" class="btn btn-primary mb-3">Dodaj Spotkanie</a>
+
+    <!-- Formularz filtrowania -->
+    <form method="GET" action="{{ url_for('terminarz_bp.lista_spotkan') }}" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="kandydat_filter" class="form-label">Filtruj według kandydata</label>
+            <input type="text" name="kandydat" id="kandydat_filter" class="form-control" value="{{ kandydat_filter }}" placeholder="Imię i nazwisko kandydata">
+        </div>
+        <div class="col-md-4">
+            <label for="sortowanie" class="form-label">Sortowanie</label>
+            <select name="sortowanie" id="sortowanie" class="form-select">
+                <option value="data" {% if sortowanie == "data" %}selected{% endif %}>Data spotkania</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="kierunek" class="form-label">Kierunek</label>
+            <select name="kierunek" id="kierunek" class="form-select">
+                <option value="asc" {% if kierunek == "asc" %}selected{% endif %}>Rosnąco</option>
+                <option value="desc" {% if kierunek == "desc" %}selected{% endif %}>Malejąco</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-success">Zastosuj filtr</button>
+        </div>
+    </form>
+
+    <!-- Tabela -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Kandydat</th>
+                <th>Telefon</th>
+                <th>Data Spotkania</th>
+                <th>Opis</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for spotkanie in spotkania %}
+            <tr>
+                <td>{{ spotkanie.id }}</td>
+                <td>{{ spotkanie.kandydat.imie }} {{ spotkanie.kandydat.nazwisko }}</td>
+                <td>{{ spotkanie.telefon }}</td>
+                <td>
+                    {% if spotkanie.data %}
+                        {{ spotkanie.data.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        <span class="badge bg-secondary">Brak daty</span>
+                    {% endif %}
+                </td>
+                <td>{{ spotkanie.opis }}</td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Akcje
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('terminarz_bp.edytuj_spotkanie', id=spotkanie.id) }}">Edytuj</a></li>
+                            <li>
+                                <form action="{{ url_for('terminarz_bp.usun_spotkanie', id=spotkanie.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" onclick="return confirm('Czy na pewno chcesz usunąć to spotkanie?')">Usuń</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ url_for('terminarz_bp.przenies_kandydata', spotkanie_id=spotkanie.id, cel='szkolenie') }}">
+                                    <button type="submit" class="dropdown-item">Przenieś do Szkolenia</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ url_for('terminarz_bp.przenies_kandydata', spotkanie_id=spotkanie.id, cel='historia') }}">
+                                    <button type="submit" class="dropdown-item">Przenieś do Historii</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ url_for('terminarz_bp.przenies_kandydata', spotkanie_id=spotkanie.id, cel='kandydaci') }}">
+                                    <button type="submit" class="dropdown-item">Cofnij do Kandydatów</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

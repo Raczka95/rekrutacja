@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Dodaj Kandydata{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Dodaj Kandydata</h1>
+
+    <!-- ✅ Wyświetlanie komunikatów Flash (np. "E-mail już istnieje!") -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('kandydaci_bp.dodaj_kandydata') }}">
+        <div class="mb-3">
+            <label for="imie" class="form-label">Imię:</label>
+            <input type="text" class="form-control" name="imie" id="imie" required>
+        </div>
+        <div class="mb-3">
+            <label for="nazwisko" class="form-label">Nazwisko:</label>
+            <input type="text" class="form-control" name="nazwisko" id="nazwisko" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" name="email" id="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="telefon" class="form-label">Telefon:</label>
+            <input type="text" class="form-control" name="telefon" id="telefon" required>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <select class="form-control" name="status" id="status" required>
+                <option value="Zadzwonić">Zadzwonić</option>
+                <option value="Umówiony">Umówiony</option>
+                <option value="Zrezygnował">Zrezygnował</option>
+                <option value="Nie zdecydowany">Nie zdecydowany</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="data_kontaktu" class="form-label">Data kontaktu:</label>
+            <input type="date" class="form-control" name="data_kontaktu" id="data_kontaktu">
+        </div>
+        <button type="submit" class="btn btn-primary">Dodaj Kandydata</button>
+    </form>
+</div>
+{% endblock %}

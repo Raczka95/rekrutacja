@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Historia Zatrudnień{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Historia Zatrudnień</h1>
+
+    <!-- Formularz wyszukiwania -->
+    <form class="row mb-4" method="GET">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Wyszukaj po nazwisku...">
+        </div>
+        <div class="col-md-4">
+            <input type="date" name="date_filter" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">Filtruj</button>
+        </div>
+    </form>
+
+    <!-- Tabela z historią zatrudnień -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Imię i nazwisko</th>
+                    <th>Stanowisko</th>
+                    <th>Data rozpoczęcia</th>
+                    <th>Data zakończenia</th>
+                    <th>Powód zakończenia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in historia %}
+                <tr>
+                    <td>{{ entry.name }}</td>
+                    <td>{{ entry.position }}</td>
+                    <td>{{ entry.start_date }}</td>
+                    <td>{{ entry.end_date }}</td>
+                    <td>{{ entry.reason }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">Brak zapisów w historii zatrudnień.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

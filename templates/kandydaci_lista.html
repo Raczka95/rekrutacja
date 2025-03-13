@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Lista Kandydatów{% endblock %}
+
+{% block content %}
+<h1>Lista kandydatów</h1>
+
+{% if kandydaci_do_kontaktu %}
+<div class="alert alert-warning" role="alert">
+    <strong>Uwaga!</strong> Dziś musisz zadzwonić do następujących kandydatów:
+    <ul>
+        {% for kandydat in kandydaci_do_kontaktu %}
+        <li>{{ kandydat.imie }} {{ kandydat.nazwisko }} - {{ kandydat.telefon }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<a href="{{ url_for('kandydaci_bp.dodaj_kandydata') }}" class="btn btn-primary mb-3">Dodaj Kandydata</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Status</th>
+            <th>Data kontaktu</th>
+            <th>Akcja</th>
+            <th>Opcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in kandydaci_z_akcjami %}
+        <tr>
+            <td>{{ item.kandydat.imie }}</td>
+            <td>{{ item.kandydat.nazwisko }}</td>
+            <td>{{ item.kandydat.email }}</td>
+            <td>{{ item.kandydat.telefon }}</td>
+            <td>
+                <form method="POST" action="{{ url_for('kandydaci_bp.zmien_status', kandydat_id=item.kandydat.id) }}">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="Zadzwonić" {% if item.kandydat.status == 'Zadzwonić' %}selected{% endif %}>Zadzwonić</option>
+                        <option value="Umówiony" {% if item.kandydat.status == 'Umówiony' %}selected{% endif %}>Umówiony</option>
+                        <option value="Zrezygnował" {% if item.kandydat.status == 'Zrezygnował' %}selected{% endif %}>Zrezygnował</option>
+                        <option value="Nie zdecydowany" {% if item.kandydat.status == 'Nie zdecydowany' %}selected{% endif %}>Nie zdecydowany</option>
+                    </select>
+                </form>
+            </td>
+            <td>
+                {% if item.kandydat.data_kontaktu %}
+                    {{ item.kandydat.data_kontaktu.strftime('%d-%m-%Y') }}
+                {% else %}
+                    <span class="badge bg-secondary">Brak informacji</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if item.akcja_data %}
+                    <span class="badge bg-warning">Zadzwonić {{ item.akcja_data.strftime('%d-%m-%Y') }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">Brak akcji</span>
+                {% endif %}
+            </td>
+            <td>
+                <!-- Rozwijany przycisk opcji -->
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        Opcje
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('kandydaci_bp.edytuj_kandydata', kandydat_id=item.kandydat.id) }}">Edytuj</a>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ url_for('kandydaci_bp.usun_kandydata', kandydat_id=item.kandydat.id) }}" style="display:inline;">
+                                <button type="submit" class="dropdown-item" onclick="return confirm('Czy na pewno chcesz usunąć tego kandydata?');">Usuń</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ url_for('kandydaci_bp.przenies_do_historia', kandydat_id=item.kandydat.id) }}" style="display:inline;">
+                                <button type="submit" class="dropdown-item">Przenieś do Historii</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

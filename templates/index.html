@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Strona Główna{% endblock %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <p>Wybierz moduł, do którego chcesz przejść:</p>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <a href="{{ url_for('ogloszenia_bp.lista_ogloszen') }}" class="btn btn-primary btn-lg w-100 mb-3">Ogłoszenia</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('kandydaci_bp.lista_kandydatow') }}" class="btn btn-success btn-lg w-100 mb-3">Kandydaci</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('terminarz_bp.lista_spotkan') }}" class="btn btn-warning btn-lg w-100 mb-3">Terminarz</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('szkolenia_bp.lista_szkolen') }}" class="btn btn-info btn-lg w-100 mb-3">Szkolenia</a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ url_for('historia_bp.lista_historia') }}" class="btn btn-dark btn-lg w-100 mb-3">Historia Zatrudnień</a>
+        </div>
+    </div>
+
+    <footer class="mt-5">
+        <p class="text-muted">Jeszcze dużo pracy przed nami Tomaszu !</p>
+    </footer>
+</div>
+{% endblock %}

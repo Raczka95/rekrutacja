@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Edytuj Spotkanie{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h1>Edytuj Spotkanie</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="kandydat_id" class="form-label">Kandydat</label>
+            <select name="kandydat_id" id="kandydat_id" class="form-select" required>
+                {% for kandydat in kandydaci %}
+                    <option value="{{ kandydat.id }}" {% if kandydat.id == spotkanie.kandydat_id %}selected{% endif %}>
+                        {{ kandydat.imie }} {{ kandydat.nazwisko }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="data">Data spotkania:</label>
+            <input type="datetime-local" name="data" id="data" class="form-control"
+                value="{% if spotkanie.data %}{{ spotkanie.data.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
+
+        </div>
+        <div class="mb-3">
+            <label for="opis" class="form-label">Opis</label>
+            <textarea name="opis" id="opis" class="form-control">{{ spotkanie.opis }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+        <a href="{{ url_for('terminarz_bp.lista_spotkan') }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

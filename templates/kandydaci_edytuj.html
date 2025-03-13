@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edytuj Kandydata{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Edytuj Kandydata</h1>
+    <form method="POST" action="{{ url_for('kandydaci_bp.edytuj_kandydata', kandydat_id=kandydat.id) }}">
+        <div class="mb-3">
+            <label for="imie" class="form-label">Imię:</label>
+            <input type="text" class="form-control" name="imie" id="imie" value="{{ kandydat.imie }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="nazwisko" class="form-label">Nazwisko:</label>
+            <input type="text" class="form-control" name="nazwisko" id="nazwisko" value="{{ kandydat.nazwisko }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" class="form-control" name="email" id="email" value="{{ kandydat.email }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="telefon" class="form-label">Telefon:</label>
+            <input type="text" class="form-control" name="telefon" id="telefon" value="{{ kandydat.telefon }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Status:</label>
+            <select class="form-control" name="status" id="status">
+                <option value="Zadzwonić" {% if kandydat.status == 'Zadzwonić' %}selected{% endif %}>Zadzwonić</option>
+                <option value="Umówiony" {% if kandydat.status == 'Umówiony' %}selected{% endif %}>Umówiony</option>
+                <option value="Zrezygnował" {% if kandydat.status == 'Zrezygnował' %}selected{% endif %}>Zrezygnował</option>
+                <option value="Nie zdecydowany" {% if kandydat.status == 'Nie zdecydowany' %}selected{% endif %}>Nie zdecydowany</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="data_kontaktu" class="form-label">Data kontaktu:</label>
+            <input type="date" class="form-control" name="data_kontaktu" id="data_kontaktu" 
+                   value="{{ kandydat.data_kontaktu.strftime('%Y-%m-%d') if kandydat.data_kontaktu else '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+        <a href="{{ url_for('kandydaci_bp.lista_kandydatow') }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

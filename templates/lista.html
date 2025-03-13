@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Lista Ogłoszeń{% endblock %}
+{% block content %}
+<h1>Lista ogłoszeń</h1>
+<a href="{{ url_for('ogloszenia_bp.dodaj_ogloszenie') }}" class="btn btn-primary mb-3">Dodaj Ogłoszenie</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tytuł</th>
+            <th>Region</th>
+            <th>Platforma</th>
+            <th>Link</th>
+            <th>Data Publikacji</th>
+            <th>Data Wygaśnięcia</th>
+            <th>Status</th>
+            <th>Data Utworzenia</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ogloszenie in ogloszenia %}
+        <tr>
+            <td>{{ ogloszenie.id }}</td>
+            <td>{{ ogloszenie.tytul }}</td>
+            <td>{{ ogloszenie.opis }}</td>
+            <td>{{ ogloszenie.platforma }}</td>
+            <td><a href="{{ ogloszenie.link }}" target="_blank">Zobacz ogłoszenie</a></td>
+            <td>{{ ogloszenie.data_publikacji }}</td>
+            <td>{{ ogloszenie.data_wygasniecia }}</td>
+            <td>{{ ogloszenie.status }}</td>
+            <td>{{ ogloszenie.data_utworzenia }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
