@@ -5,20 +5,19 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Lista Szkoleń</h1>
-
     <div class="mb-3">
         <a href="{{ url_for('szkolenia_bp.dodaj_szkolenie') }}" class="btn btn-primary">Dodaj Szkolenie</a>
+        <a href="{{ url_for('szkolenia_bp.kalendarz_szkolen') }}" class="btn btn-info">Widok kalendarzowy</a>
     </div>
-
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>Nazwa Szkolenia</th>
+                    <th>Nazwa szkolenia</th>
                     <th>Data</th>
                     <th>Prowadzący</th>
                     <th>Miejsce</th>
-                    <th>Opis</th>
+                    <th>Liczba uczestników</th>
                     <th>Akcje</th>
                 </tr>
             </thead>
@@ -26,13 +25,16 @@
                 {% for szkolenie in szkolenia %}
                 <tr>
                     <td>{{ szkolenie.nazwa }}</td>
-                    <td>{{ szkolenie.data }}</td>
-                    <td>{{ szkolenie.prowadzacy }}</td>
-                    <td>{{ szkolenie.miejsce }}</td>
-                    <td>{{ szkolenie.opis }}</td>
+                    <td>{{ szkolenie.data.strftime('%Y-%m-%d %H:%M') if szkolenie.data else 'Brak daty' }}</td>
+                    <td>{{ szkolenie.prowadzacy or 'Brak' }}</td>
+                    <td>{{ szkolenie.miejsce or 'Brak' }}</td>
+                    <td>{{ szkolenie.uczestnictwa|length }}</td>
                     <td>
+                        <a href="{{ url_for('szkolenia_bp.szczegoly_szkolenia', id=szkolenie.id) }}" class="btn btn-info btn-sm">Szczegóły</a>
                         <a href="{{ url_for('szkolenia_bp.edytuj_szkolenie', id=szkolenie.id) }}" class="btn btn-warning btn-sm">Edytuj</a>
-                        <a href="{{ url_for('szkolenia_bp.usun_szkolenie', id=szkolenie.id) }}" class="btn btn-danger btn-sm">Usuń</a>
+                        <form action="{{ url_for('szkolenia_bp.usun_szkolenie', id=szkolenie.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Czy na pewno chcesz usunąć to szkolenie?')">Usuń</button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}

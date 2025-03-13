@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Przenieś do Szkolenia{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Przenieś kandydata: {{ kandydat.imie }} {{ kandydat.nazwisko }}</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="szkolenie_id" class="form-label">Wybierz szkolenie:</label>
+            <select name="szkolenie_id" id="szkolenie_id" class="form-select" required>
+                {% for szkolenie in szkolenia %}
+                <option value="{{ szkolenie.id }}">{{ szkolenie.nazwa }} ({{ szkolenie.data.strftime('%Y-%m-%d %H:%M') }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Dopisz kandydata</button>
+        <a href="{{ url_for('terminarz_bp.lista_spotkan') }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

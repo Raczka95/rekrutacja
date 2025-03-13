@@ -1,22 +1,23 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from blueprints.extensions import db  # Importowanie db z nowego pliku
-from blueprints.models import Spotkanie, Kandydat, Szkolenie, Historia
 from datetime import datetime
+from typing import Any, List
+from blueprints.extensions import db
+from blueprints.models import Spotkanie, Kandydat, Szkolenie, Historia
 
 terminarz_bp = Blueprint("terminarz_bp", __name__, template_folder="../templates")
 
 @terminarz_bp.route("/")
-def lista_spotkan():
-    sortowanie = request.args.get("sortowanie", "data")  # Domyślnie sortuj według daty
-    kierunek = request.args.get("kierunek", "asc")  # Domyślnie rosnąco
+def lista_spotkan() -> str:
+    sortowanie: str = request.args.get("sortowanie", "data")
+    kierunek: str = request.args.get("kierunek", "asc")
 
-    # Pobieramy spotkania, sortując według daty
-    spotkania = Spotkanie.query.order_by(
+    # Pobieramy spotkania i sortujemy według daty
+    spotkania: List[Spotkanie] = Spotkanie.query.order_by(
         Spotkanie.data.asc() if kierunek == "asc" else Spotkanie.data.desc()
     ).all()
 
-    # Filtrowanie po kandydatach, jeśli jest zapytanie
-    kandydat_filter = request.args.get("kandydat", "").strip()
+    # Filtrowanie po kandydatach, jeśli podano zapytanie
+    kandydat_filter: str = request.args.get("kandydat", "").strip()
     if kandydat_filter:
         spotkania = [
             s for s in spotkania
@@ -32,88 +33,92 @@ def lista_spotkan():
     )
 
 @terminarz_bp.route("/dodaj", methods=["GET", "POST"])
-def dodaj_spotkanie():
+def dodaj_spotkanie() -> str:
     kandydaci = Kandydat.query.all()
     
     if request.method == "POST":
         kandydat_id = request.form.get("kandydat_id")
-        data = request.form.get("data")
+        data_str = request.form.get("data")
         opis = request.form.get("opis")
-
-        kandydat = Kandydat.query.get(kandydat_id)  # 🔴 Pobranie obiektu kandydata
+        
+        kandydat = Kandydat.query.get(kandydat_id)
         if not kandydat:
             flash("Wybrany kandydat nie istnieje.", "danger")
             return redirect(url_for("terminarz_bp.lista_spotkan"))
 
-        if kandydat_id and data:
+        if kandydat_id and data_str:
             try:
-                data = datetime.strptime(data, "%Y-%m-%dT%H:%M")
-
+                data = datetime.strptime(data_str, "%Y-%m-%dT%H:%M")
                 nowe_spotkanie = Spotkanie(
                     kandydat_id=kandydat_id, 
-                    telefon=kandydat.telefon,  # 🔴 Pobranie numeru telefonu
+                    telefon=kandydat.telefon,
                     data=data, 
                     opis=opis
                 )
                 db.session.add(nowe_spotkanie)
                 db.session.commit()
-
                 flash("Spotkanie zostało dodane!", "success")
                 return redirect(url_for("terminarz_bp.lista_spotkan"))
-
             except ValueError:
                 flash("Nieprawidłowy format daty! Użyj pola wyboru daty.", "danger")
-
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Błąd zapisu do bazy: {e}", "danger")
         else:
             flash("Wypełnij wszystkie wymagane pola.", "danger")
 
     return render_template("terminarz/terminarz_dodaj.html", kandydaci=kandydaci)
 
-
 @terminarz_bp.route("/edytuj/<int:id>", methods=["GET", "POST"])
-def edytuj_spotkanie(id):
+def edytuj_spotkanie(id: int) -> str:
     spotkanie = Spotkanie.query.get_or_404(id)
     kandydaci = Kandydat.query.all()
-
     if request.method == "POST":
         spotkanie.kandydat_id = request.form.get("kandydat_id")
-        
-        # ✅ Sprawdzamy, czy użytkownik podał datę
         data_str = request.form.get("data")
         if data_str:
-            spotkanie.data = datetime.strptime(data_str, "%Y-%m-%dT%H:%M")
+            try:
+                spotkanie.data = datetime.strptime(data_str, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                flash("Nieprawidłowy format daty!", "danger")
+                return redirect(url_for("terminarz_bp.edytuj_spotkanie", id=id))
         else:
-            spotkanie.data = None  # ✅ Pozostaw pustą datę, jeśli nie podano
-
-        spotkanie.opis = request.form.get("opis")
-        db.session.commit()
-        flash("Spotkanie zostało zaktualizowane!", "success")
+            spotkanie.data = None
+        # Pobranie nowej wartości opisu
+        new_opis = request.form.get("opis")
+        print("DEBUG: Nowy opis:", new_opis)  # Debug - sprawdź, czy wartość jest pobierana
+        spotkanie.opis = new_opis
+        try:
+            db.session.commit()
+            flash("Spotkanie zostało zaktualizowane!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Błąd podczas aktualizacji: {e}", "danger")
         return redirect(url_for("terminarz_bp.lista_spotkan"))
-
     return render_template("terminarz/terminarz_edytuj.html", spotkanie=spotkanie, kandydaci=kandydaci)
 
 
 @terminarz_bp.route("/usun/<int:id>", methods=["POST"])
-def usun_spotkanie(id):
+def usun_spotkanie(id: int) -> str:
     spotkanie = Spotkanie.query.get_or_404(id)
-    db.session.delete(spotkanie)
-    db.session.commit()
-    flash("Spotkanie zostało usunięte!", "success")
+    try:
+        db.session.delete(spotkanie)
+        db.session.commit()
+        flash("Spotkanie zostało usunięte!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Błąd podczas usuwania: {e}", "danger")
     return redirect(url_for("terminarz_bp.lista_spotkan"))
 
 @terminarz_bp.route("/przenies/<int:spotkanie_id>/<string:cel>", methods=["POST"])
-def przenies_kandydata(spotkanie_id, cel):
+def przenies_kandydata(spotkanie_id: int, cel: str) -> str:
     spotkanie = Spotkanie.query.get_or_404(spotkanie_id)
     kandydat = Kandydat.query.get_or_404(spotkanie.kandydat_id)
 
     if cel == "szkolenie":
-        nowe_szkolenie = Szkolenie(
-            temat=f"Szkolenie dla {kandydat.imie} {kandydat.nazwisko}",
-            opis="Nowy kandydat na szkoleniu",
-            data=datetime.utcnow()
-        )
-        db.session.add(nowe_szkolenie)
-
+        # Zamiast tworzyć nowe szkolenie automatycznie,
+        # przekierowujemy do widoku, w którym można wybrać istniejące szkolenie
+        return redirect(url_for("terminarz_bp.przenies_do_szkolenia", kandydat_id=kandydat.id))
     elif cel == "historia":
         nowa_historia = Historia(
             kandydat_id=kandydat.id,
@@ -121,7 +126,6 @@ def przenies_kandydata(spotkanie_id, cel):
             stanowisko="Nowy pracownik"
         )
         db.session.add(nowa_historia)
-
     elif cel == "kandydaci":
         kandydat.status = "Nie zdecydowany"
         db.session.add(kandydat)
@@ -137,3 +141,27 @@ def przenies_kandydata(spotkanie_id, cel):
         flash(f"Błąd podczas przenoszenia: {e}", "danger")
 
     return redirect(url_for("terminarz_bp.lista_spotkan"))
+
+@terminarz_bp.route("/przenies_do_szkolenia", methods=["GET", "POST"])
+def przenies_do_szkolenia():
+    from blueprints.models import Kandydat, Szkolenie, Uczestnictwo  # lokalny import
+    kandydat_id = request.args.get("kandydat_id")
+    kandydat = Kandydat.query.get_or_404(kandydat_id)
+    szkolenia = Szkolenie.query.order_by(Szkolenie.data.asc()).all()
+    if request.method == "POST":
+        szkolenie_id = request.form.get("szkolenie_id")
+        szkolenie = Szkolenie.query.get_or_404(szkolenie_id)
+        # Sprawdzamy, czy kandydat nie jest już zapisany do szkolenia
+        if not any(u.kandydat_id == kandydat.id for u in szkolenie.uczestnictwa):
+            nowe_uczestnictwo = Uczestnictwo(szkolenie_id=szkolenie.id, kandydat_id=kandydat.id)
+            szkolenie.uczestnictwa.append(nowe_uczestnictwo)
+            kandydat.status = "Zaplanowany na szkolenie"
+        try:
+            db.session.commit()
+            flash("Kandydat został dopisany do szkolenia.", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Błąd podczas dopisywania do szkolenia: {e}", "danger")
+        return redirect(url_for('terminarz_bp.lista_spotkan'))
+    return render_template("przenies_do_szkolenia.html", kandydat=kandydat, szkolenia=szkolenia)
+

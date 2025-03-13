@@ -9,22 +9,22 @@
     <form method="POST" action="{{ url_for('ogloszenia_bp.dodaj_ogloszenie') }}" class="mx-auto" style="max-width: 500px;">
         <div class="mb-3">
             <label for="tytul" class="form-label">Tytuł ogłoszenia</label>
-            <input type="text" class="form-control w-75" id="tytul" name="tytul" required>
+            <input type="text" class="form-control w-75" id="tytul" name="tytul" placeholder="Wprowadź tytuł ogłoszenia" required>
         </div>
 
         <div class="mb-3">
             <label for="opis" class="form-label">Region</label>
-            <input type="text" class="form-control w-75" id="opis" name="opis" required>
+            <input type="text" class="form-control w-75" id="opis" name="opis" placeholder="Wprowadź region" required>
         </div>
 
         <div class="mb-3">
             <label for="platforma" class="form-label">Platforma</label>
-            <input type="text" class="form-control w-75" id="platforma" name="platforma" required>
+            <input type="text" class="form-control w-75" id="platforma" name="platforma" placeholder="Wprowadź platformę" required>
         </div>
 
         <div class="mb-3">
             <label for="link" class="form-label">Link do ogłoszenia</label>
-            <input type="url" class="form-control w-75" id="link" name="link" required>
+            <input type="url" class="form-control w-75" id="link" name="link" placeholder="Wprowadź link" required>
         </div>
 
         <div class="mb-3">

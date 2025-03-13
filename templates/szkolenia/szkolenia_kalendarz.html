@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Kalendarz Szkoleń{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Kalendarz Szkoleń</h1>
+    {% if szkolenia %}
+        {% set current_date = None %}
+        {% for szkolenie in szkolenia %}
+            {% set szkolenie_date = szkolenie.data.strftime('%Y-%m-%d') %}
+            {% if szkolenie_date != current_date %}
+                {% if not loop.first %}
+                    </ul>
+                {% endif %}
+                <h3>{{ szkolenie_date }}</h3>
+                <ul class="list-group mb-4">
+                {% set current_date = szkolenie_date %}
+            {% endif %}
+            <li class="list-group-item">
+                <strong>{{ szkolenie.nazwa }}</strong> o {{ szkolenie.data.strftime('%H:%M') }} -
+                Uczestników: {{ szkolenie.uczestnictwa|length }}
+                {% if szkolenie.decyzja %}
+                    (Decyzja: {{ szkolenie.decyzja }})
+                {% endif %}
+                <br>
+                {% if szkolenie.kandydaci %}
+                    <small>
+                        {% for kand in szkolenie.kandydaci %}
+                            {{ kand.imie }} {{ kand.nazwisko }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </small>
+                {% endif %}
+            </li>
+            {% if loop.last %}
+                </ul>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <p class="text-center">Brak zaplanowanych szkoleń.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,31 +1,68 @@
 {% extends "base.html" %}
-
-{% block title %}Strona Główna{% endblock %}
-
+{% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="container mt-5 text-center">
-    <p>Wybierz moduł, do którego chcesz przejść:</p>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <a href="{{ url_for('ogloszenia_bp.lista_ogloszen') }}" class="btn btn-primary btn-lg w-100 mb-3">Ogłoszenia</a>
+<div class="container mt-5">
+    <div class="row g-4">
+        <!-- Ogłoszenia -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="/ogloszenia" class="text-decoration-none">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-bullhorn fa-3x mb-3 text-primary"></i>
+                        <h5 class="card-title">Ogłoszenia</h5>
+                        <p class="card-text">Zarządzaj ogłoszeniami rekrutacyjnymi</p>
+                    </div>
+                </div>
+            </a>
         </div>
-        <div class="col-md-6">
-            <a href="{{ url_for('kandydaci_bp.lista_kandydatow') }}" class="btn btn-success btn-lg w-100 mb-3">Kandydaci</a>
+        <!-- Kandydaci -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="/kandydaci/lista_kandydatow" class="text-decoration-none">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-users fa-3x mb-3 text-success"></i>
+                        <h5 class="card-title">Kandydaci</h5>
+                        <p class="card-text">Przeglądaj kandydatów i ich status</p>
+                    </div>
+                </div>
+            </a>
         </div>
-        <div class="col-md-6">
-            <a href="{{ url_for('terminarz_bp.lista_spotkan') }}" class="btn btn-warning btn-lg w-100 mb-3">Terminarz</a>
+        <!-- Terminarz -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="/terminarz" class="text-decoration-none">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-calendar-alt fa-3x mb-3 text-info"></i>
+                        <h5 class="card-title">Terminarz</h5>
+                        <p class="card-text">Planowanie spotkań rekrutacyjnych</p>
+                    </div>
+                </div>
+            </a>
         </div>
-        <div class="col-md-6">
-            <a href="{{ url_for('szkolenia_bp.lista_szkolen') }}" class="btn btn-info btn-lg w-100 mb-3">Szkolenia</a>
+        <!-- Szkolenia -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="/szkolenia" class="text-decoration-none">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-chalkboard-teacher fa-3x mb-3 text-warning"></i>
+                        <h5 class="card-title">Szkolenia</h5>
+                        <p class="card-text">Organizacja szkoleń dla kandydatów</p>
+                    </div>
+                </div>
+            </a>
         </div>
-        <div class="col-md-6">
-            <a href="{{ url_for('historia_bp.lista_historia') }}" class="btn btn-dark btn-lg w-100 mb-3">Historia Zatrudnień</a>
+        <!-- Historia -->
+        <div class="col-12 col-sm-6 col-md-4">
+            <a href="/historia" class="text-decoration-none">
+                <div class="card text-center shadow-sm">
+                    <div class="card-body">
+                        <i class="fas fa-history fa-3x mb-3 text-secondary"></i>
+                        <h5 class="card-title">Historia</h5>
+                        <p class="card-text">Przegląd historii rekrutacji</p>
+                    </div>
+                </div>
+            </a>
         </div>
     </div>
-
-    <footer class="mt-5">
-        <p class="text-muted">Jeszcze dużo pracy przed nami Tomaszu !</p>
-    </footer>
 </div>
 {% endblock %}

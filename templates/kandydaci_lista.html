@@ -40,10 +40,9 @@
             <td>
                 <form method="POST" action="{{ url_for('kandydaci_bp.zmien_status', kandydat_id=item.kandydat.id) }}">
                     <select name="status" class="form-select" onchange="this.form.submit()">
-                        <option value="Zadzwonić" {% if item.kandydat.status == 'Zadzwonić' %}selected{% endif %}>Zadzwonić</option>
-                        <option value="Umówiony" {% if item.kandydat.status == 'Umówiony' %}selected{% endif %}>Umówiony</option>
-                        <option value="Zrezygnował" {% if item.kandydat.status == 'Zrezygnował' %}selected{% endif %}>Zrezygnował</option>
-                        <option value="Nie zdecydowany" {% if item.kandydat.status == 'Nie zdecydowany' %}selected{% endif %}>Nie zdecydowany</option>
+                        {% for s in statusy %}
+                        <option value="{{ s }}" {% if item.kandydat.status == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
                     </select>
                 </form>
             </td>
@@ -62,7 +61,6 @@
                 {% endif %}
             </td>
             <td>
-                <!-- Rozwijany przycisk opcji -->
                 <div class="dropdown">
                     <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                         Opcje

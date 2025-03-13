@@ -14,17 +14,14 @@
                 {% endfor %}
             </select>
         </div>
-
         <div class="mb-3">
             <label for="data" class="form-label">Data Spotkania:</label>
             <input type="datetime-local" name="data" id="data" class="form-control" required>
         </div>
-
         <div class="mb-3">
             <label for="opis" class="form-label">Opis:</label>
             <textarea name="opis" id="opis" class="form-control"></textarea>
         </div>
-
         <button type="submit" class="btn btn-success">Dodaj Spotkanie</button>
         <a href="{{ url_for('terminarz_bp.lista_spotkan') }}" class="btn btn-secondary">Anuluj</a>
     </form>

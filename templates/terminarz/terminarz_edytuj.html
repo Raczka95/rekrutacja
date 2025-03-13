@@ -5,7 +5,7 @@
     <h1>Edytuj Spotkanie</h1>
     <form method="POST">
         <div class="mb-3">
-            <label for="kandydat_id" class="form-label">Kandydat</label>
+            <label for="kandydat_id" class="form-label">Kandydat:</label>
             <select name="kandydat_id" id="kandydat_id" class="form-select" required>
                 {% for kandydat in kandydaci %}
                     <option value="{{ kandydat.id }}" {% if kandydat.id == spotkanie.kandydat_id %}selected{% endif %}>
@@ -15,13 +15,12 @@
             </select>
         </div>
         <div class="mb-3">
-            <label for="data">Data spotkania:</label>
+            <label for="data" class="form-label">Data spotkania:</label>
             <input type="datetime-local" name="data" id="data" class="form-control"
-                value="{% if spotkanie.data %}{{ spotkanie.data.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
-
+                   value="{% if spotkanie.data %}{{ spotkanie.data.strftime('%Y-%m-%dT%H:%M') }}{% endif %}">
         </div>
         <div class="mb-3">
-            <label for="opis" class="form-label">Opis</label>
+            <label for="opis" class="form-label">Opis:</label>
             <textarea name="opis" id="opis" class="form-control">{{ spotkanie.opis }}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Zapisz zmiany</button>

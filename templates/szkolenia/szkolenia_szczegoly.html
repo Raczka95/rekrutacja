@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Szczegóły Szkolenia{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>{{ szkolenie.nazwa }}</h1>
+    <p><strong>Data:</strong> {{ szkolenie.data.strftime('%Y-%m-%d %H:%M') }}</p>
+    <p><strong>Prowadzący:</strong> {{ szkolenie.prowadzacy or 'Brak' }}</p>
+    <p><strong>Miejsce:</strong> {{ szkolenie.miejsce or 'Brak' }}</p>
+    <p><strong>Opis:</strong> {{ szkolenie.opis or 'Brak opisu' }}</p>
+    
+    <h3>Uczestnicy szkolenia ({{ szkolenie.uczestnictwa|length }})</h3>
+    <ul class="list-group">
+        {% for uczestnictwo in szkolenie.uczestnictwa %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>
+                {{ uczestnictwo.kandydat.imie }} {{ uczestnictwo.kandydat.nazwisko }}
+                {% if uczestnictwo.decyzja %}
+                    <small class="text-muted">(Decyzja: {{ uczestnictwo.decyzja|capitalize }})</small>
+                {% endif %}
+            </span>
+            <span>
+                <!-- Przycisk usuwający uczestnictwo -->
+                <form action="{{ url_for('szkolenia_bp.usun_uczestnika', szkolenie_id=szkolenie.id, kandydat_id=uczestnictwo.kandydat.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Czy na pewno chcesz usunąć tego uczestnika?')">X</button>
+                </form>
+                <!-- Przyciski aktualizujące decyzję dla tego uczestnictwa -->
+                <form action="{{ url_for('szkolenia_bp.decyzja_uczestnictwo', szkolenie_id=szkolenie.id, kandydat_id=uczestnictwo.kandydat.id, decyzja='zatrudnij') }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-success">Zatrudnij</button>
+                </form>
+                <form action="{{ url_for('szkolenia_bp.decyzja_uczestnictwo', szkolenie_id=szkolenie.id, kandydat_id=uczestnictwo.kandydat.id, decyzja='historia') }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-warning">Do historii</button>
+                </form>
+            </span>
+        </li>
+        {% else %}
+        <li class="list-group-item">Brak uczestników.</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('szkolenia_bp.lista_szkolen') }}" class="btn btn-secondary mt-3">Powrót do listy</a>
+</div>
+{% endblock %}

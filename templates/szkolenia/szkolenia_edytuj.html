@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Edytuj Szkolenie{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Edytuj Szkolenie</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="nazwa" class="form-label">Nazwa szkolenia:</label>
+            <input type="text" name="nazwa" id="nazwa" class="form-control" value="{{ szkolenie.nazwa }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="data" class="form-label">Data i godzina szkolenia:</label>
+            <input type="datetime-local" name="data" id="data" class="form-control"
+                   value="{{ szkolenie.data.strftime('%Y-%m-%dT%H:%M') if szkolenie.data else '' }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="prowadzacy" class="form-label">Prowadzący:</label>
+            <input type="text" name="prowadzacy" id="prowadzacy" class="form-control" value="{{ szkolenie.prowadzacy }}">
+        </div>
+        <div class="mb-3">
+            <label for="miejsce" class="form-label">Miejsce:</label>
+            <input type="text" name="miejsce" id="miejsce" class="form-control" value="{{ szkolenie.miejsce }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Zapisz zmiany</button>
+        <a href="{{ url_for('szkolenia_bp.lista_szkolen') }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

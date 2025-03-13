@@ -25,10 +25,9 @@
         <div class="mb-3">
             <label for="status" class="form-label">Status:</label>
             <select class="form-control" name="status" id="status">
-                <option value="Zadzwonić" {% if kandydat.status == 'Zadzwonić' %}selected{% endif %}>Zadzwonić</option>
-                <option value="Umówiony" {% if kandydat.status == 'Umówiony' %}selected{% endif %}>Umówiony</option>
-                <option value="Zrezygnował" {% if kandydat.status == 'Zrezygnował' %}selected{% endif %}>Zrezygnował</option>
-                <option value="Nie zdecydowany" {% if kandydat.status == 'Nie zdecydowany' %}selected{% endif %}>Nie zdecydowany</option>
+                {% for s in statusy %}
+                <option value="{{ s }}" {% if kandydat.status == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="mb-3">

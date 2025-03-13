@@ -6,41 +6,41 @@
 <div class="container mt-4">
     <h1>Dodaj Kandydata</h1>
 
-    <!-- ✅ Wyświetlanie komunikatów Flash (np. "E-mail już istnieje!") -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% with messages = get_flashed_messages(with_categories=true, category_filter=['dodaj_kandydata_success', 'dodaj_kandydata_danger']) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="alert alert-{{ category }}" role="alert">
+                <div class="alert alert-{{ 'success' if 'success' in category else 'danger' }}" role="alert">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
+
+
     <form method="POST" action="{{ url_for('kandydaci_bp.dodaj_kandydata') }}">
         <div class="mb-3">
             <label for="imie" class="form-label">Imię:</label>
-            <input type="text" class="form-control" name="imie" id="imie" required>
+            <input type="text" class="form-control" name="imie" id="imie" placeholder="Wprowadź imię" required>
         </div>
         <div class="mb-3">
             <label for="nazwisko" class="form-label">Nazwisko:</label>
-            <input type="text" class="form-control" name="nazwisko" id="nazwisko" required>
+            <input type="text" class="form-control" name="nazwisko" id="nazwisko" placeholder="Wprowadź nazwisko" required>
         </div>
         <div class="mb-3">
             <label for="email" class="form-label">Email:</label>
-            <input type="email" class="form-control" name="email" id="email" required>
+            <input type="email" class="form-control" name="email" id="email" placeholder="Wprowadź email" required>
         </div>
         <div class="mb-3">
             <label for="telefon" class="form-label">Telefon:</label>
-            <input type="text" class="form-control" name="telefon" id="telefon" required>
+            <input type="text" class="form-control" name="telefon" id="telefon" placeholder="Wprowadź telefon" required>
         </div>
         <div class="mb-3">
             <label for="status" class="form-label">Status:</label>
             <select class="form-control" name="status" id="status" required>
-                <option value="Zadzwonić">Zadzwonić</option>
-                <option value="Umówiony">Umówiony</option>
-                <option value="Zrezygnował">Zrezygnował</option>
-                <option value="Nie zdecydowany">Nie zdecydowany</option>
+                {% for s in statusy %}
+                <option value="{{ s }}">{{ s }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="mb-3">

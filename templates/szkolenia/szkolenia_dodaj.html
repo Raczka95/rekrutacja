@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Dodaj Szkolenie{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Dodaj Szkolenie</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="nazwa" class="form-label">Nazwa szkolenia:</label>
+            <input type="text" name="nazwa" id="nazwa" class="form-control" placeholder="Wprowadź nazwę szkolenia" required>
+        </div>
+        <div class="mb-3">
+            <label for="data" class="form-label">Data i godzina szkolenia:</label>
+            <input type="datetime-local" name="data" id="data" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="prowadzacy" class="form-label">Prowadzący:</label>
+            <input type="text" name="prowadzacy" id="prowadzacy" class="form-control" placeholder="Wprowadź imię i nazwisko prowadzącego">
+        </div>
+        <div class="mb-3">
+            <label for="miejsce" class="form-label">Miejsce:</label>
+            <input type="text" name="miejsce" id="miejsce" class="form-control" placeholder="Wprowadź miejsce szkolenia">
+        </div>
+        <div class="mb-3">
+            <label for="kandydat_ids" class="form-label">Wybierz kandydatów (przytrzymaj Ctrl lub Cmd dla wielu wyborów):</label>
+            <select name="kandydat_ids" id="kandydat_ids" class="form-select" multiple>
+                {% for kandydat in kandydaci %}
+                    <option value="{{ kandydat.id }}">{{ kandydat.imie }} {{ kandydat.nazwisko }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Dodaj Szkolenie</button>
+        <a href="{{ url_for('szkolenia_bp.lista_szkolen') }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

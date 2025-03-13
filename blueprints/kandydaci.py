@@ -1,47 +1,45 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from datetime import datetime, timedelta
+from typing import Any
 from blueprints.extensions import db
 from blueprints.models import Kandydat, Spotkanie, Historia
 
-# Tworzymy Blueprint
 kandydaci_bp = Blueprint('kandydaci_bp', __name__, template_folder='../templates')
 
 STATUSY = ["Zadzwonić", "Umówiony", "Zrezygnował", "Nie zdecydowany"]
 
 @kandydaci_bp.route('/dodaj_kandydata', methods=['GET', 'POST'])
-def dodaj_kandydata():
+def dodaj_kandydata() -> str:
     if request.method == 'POST':
-        imie = request.form.get('imie', '').strip()
-        nazwisko = request.form.get('nazwisko', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        telefon = request.form.get('telefon', '').strip()
-        status = request.form.get('status', 'Nie zdecydowany')
-        data_kontaktu = request.form.get('data_kontaktu')
+        imie: str = request.form.get('imie', '').strip()
+        nazwisko: str = request.form.get('nazwisko', '').strip()
+        email: str = request.form.get('email', '').strip().lower()
+        telefon: str = request.form.get('telefon', '').strip()
+        status: str = request.form.get('status', 'Nie zdecydowany')
+        data_kontaktu_raw: str = request.form.get('data_kontaktu')
 
         print(f"📌 Debug: Otrzymane dane: {imie} {nazwisko}, email: {email}, tel: {telefon}, status: {status}")
 
-        # ✅ Sprawdzamy, czy e-mail już istnieje
+        # Sprawdzamy, czy e-mail już istnieje
         istnieje_kandydat = Kandydat.query.filter_by(email=email).first()
         if istnieje_kandydat:
-            # ❌ Usuwamy wszystkie wcześniejsze komunikaty, aby wyświetlić tylko ten jeden
             session.pop('_flashes', None)
-            flash(f"❌ Błąd: Kandydat z e-mailem {email} już istnieje!", "danger")
+            flash(f"❌ Błąd: Kandydat z e-mailem {email} już istnieje!", "dodaj_kandydata_danger")
             print(f"❌ Debug: E-mail {email} już istnieje w bazie!")
             return redirect(url_for('kandydaci_bp.dodaj_kandydata'))
 
-        if data_kontaktu:
+        data_kontaktu = None
+        if data_kontaktu_raw:
             try:
-                data_kontaktu = datetime.strptime(data_kontaktu, "%Y-%m-%d").date()
+                data_kontaktu = datetime.strptime(data_kontaktu_raw, "%Y-%m-%d").date()
             except ValueError:
-                flash("Nieprawidłowy format daty!", "danger")
+                flash("Nieprawidłowy format daty!", "dodaj_kandydata_danger")
                 return redirect(url_for('kandydaci_bp.dodaj_kandydata'))
-        else:
-            data_kontaktu = None
 
         nowy_kandydat = Kandydat(
-            imie=imie, 
-            nazwisko=nazwisko, 
-            email=email, 
+            imie=imie,
+            nazwisko=nazwisko,
+            email=email,
             telefon=telefon,
             status=status,
             data_kontaktu=data_kontaktu
@@ -50,13 +48,12 @@ def dodaj_kandydata():
         try:
             db.session.add(nowy_kandydat)
             db.session.commit()
-            # ❌ Usuwamy wszystkie wcześniejsze komunikaty przed dodaniem nowego
             session.pop('_flashes', None)
-            flash(f"✅ Kandydat {imie} {nazwisko} został dodany!", "success")
+            flash(f"✅ Kandydat {imie} {nazwisko} został dodany!", "dodaj_kandydata_success")
             print(f"✅ Debug: Dodano kandydata {imie} {nazwisko} do bazy.")
         except Exception as e:
             db.session.rollback()
-            flash(f"Błąd zapisu do bazy: {e}", "danger")
+            flash(f"Błąd zapisu do bazy: {e}", "dodaj_kandydata_danger")
             print(f"❌ Debug: Błąd bazy danych: {e}")
 
         return redirect(url_for('kandydaci_bp.lista_kandydatow'))
@@ -65,14 +62,10 @@ def dodaj_kandydata():
 
 
 
-
-
-
-
 @kandydaci_bp.route('/zmien_status/<int:kandydat_id>', methods=['POST'])
-def zmien_status(kandydat_id):
+def zmien_status(kandydat_id: int) -> str:
     kandydat = Kandydat.query.get_or_404(kandydat_id)
-    nowy_status = request.form.get('status')
+    nowy_status: str = request.form.get('status')
 
     if not nowy_status:
         flash('Nie wybrano statusu!', 'danger')
@@ -80,24 +73,22 @@ def zmien_status(kandydat_id):
 
     kandydat.status = nowy_status
 
-    # ✅ Jeśli kandydat jest "Nie zdecydowany", ustawiamy datę następnego kontaktu
+    # Jeśli kandydat jest "Nie zdecydowany", ustawiamy datę następnego kontaktu
     if nowy_status == "Nie zdecydowany":
         kandydat.data_kontaktu = datetime.utcnow().date() + timedelta(days=14)
-
-    # ✅ Jeśli kandydat jest "Umówiony", dodajemy go do terminarza spotkań
+    # Jeśli kandydat jest "Umówiony", dodajemy go do terminarza spotkań
     elif nowy_status == "Umówiony":
         if not kandydat.telefon:
             flash("Brak numeru telefonu! Nie można dodać spotkania.", "danger")
             return redirect(url_for('kandydaci_bp.lista_kandydatow'))
-
         spotkanie = Spotkanie(
             kandydat_id=kandydat.id,
-            telefon=kandydat.telefon,  # ✅ Pobieramy telefon kandydata
+            telefon=kandydat.telefon,
             data=None,
             opis=f"Spotkanie rekrutacyjne dla {kandydat.imie} {kandydat.nazwisko}"
         )
         db.session.add(spotkanie)
-    
+
     try:
         db.session.commit()
         flash(f'Status kandydata został zaktualizowany na "{nowy_status}"!', 'success')
@@ -108,14 +99,8 @@ def zmien_status(kandydat_id):
     return redirect(url_for('kandydaci_bp.lista_kandydatow'))
 
 
-
-
-
-
-
-
 @kandydaci_bp.route('/edytuj_kandydata/<int:kandydat_id>', methods=['GET', 'POST'])
-def edytuj_kandydata(kandydat_id):
+def edytuj_kandydata(kandydat_id: int) -> str:
     kandydat = Kandydat.query.get_or_404(kandydat_id)
     if request.method == 'POST':
         kandydat.imie = request.form.get('imie')
@@ -123,29 +108,44 @@ def edytuj_kandydata(kandydat_id):
         kandydat.email = request.form.get('email')
         kandydat.telefon = request.form.get('telefon')
         kandydat.status = request.form.get('status')
-        kandydat.data_kontaktu = request.form.get('data_kontaktu')
+        data_kontaktu_raw = request.form.get('data_kontaktu')
         
-        if kandydat.data_kontaktu:
-            kandydat.data_kontaktu = datetime.strptime(kandydat.data_kontaktu, "%Y-%m-%d").date()
+        if data_kontaktu_raw:
+            try:
+                kandydat.data_kontaktu = datetime.strptime(data_kontaktu_raw, "%Y-%m-%d").date()
+            except ValueError:
+                flash("Nieprawidłowy format daty!", "danger")
+                return redirect(url_for('kandydaci_bp.edytuj_kandydata', kandydat_id=kandydat_id))
+        else:
+            kandydat.data_kontaktu = None
         
-        db.session.commit()
-        flash("Dane kandydata zostały zaktualizowane!", "success")
+        try:
+            db.session.commit()
+            flash("Dane kandydata zostały zaktualizowane!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Błąd zapisu do bazy: {e}", "danger")
         return redirect(url_for('kandydaci_bp.lista_kandydatow'))
     return render_template('kandydaci_edytuj.html', kandydat=kandydat, statusy=STATUSY)
 
+
 @kandydaci_bp.route('/usun_kandydata/<int:kandydat_id>', methods=['POST'])
-def usun_kandydata(kandydat_id):
+def usun_kandydata(kandydat_id: int) -> str:
     kandydat = Kandydat.query.get_or_404(kandydat_id)
-    db.session.delete(kandydat)
-    db.session.commit()
-    flash("Kandydat został usunięty.", "success")
+    try:
+        db.session.delete(kandydat)
+        db.session.commit()
+        flash("Kandydat został usunięty.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Błąd podczas usuwania kandydata: {e}", "danger")
     return redirect(url_for('kandydaci_bp.lista_kandydatow'))
 
 
 @kandydaci_bp.route('/lista_kandydatow')
-def lista_kandydatow():
-    # ✅ Pobieramy tylko kandydatów, którzy NIE są umówieni
-    kandydaci = Kandydat.query.filter(Kandydat.status != "Umówiony").all()
+def lista_kandydatow() -> str:
+    active_statuses = ["Zadzwonić", "Nie zdecydowany", "Zrezygnował"]
+    kandydaci = Kandydat.query.filter(Kandydat.status.in_(active_statuses)).all()
     dzisiaj = datetime.utcnow().date()
 
     kandydaci_z_akcjami = []
@@ -165,22 +165,21 @@ def lista_kandydatow():
     return render_template(
         'kandydaci_lista.html',
         kandydaci_z_akcjami=kandydaci_z_akcjami,
-        kandydaci_do_kontaktu=kandydaci_do_kontaktu
+        kandydaci_do_kontaktu=kandydaci_do_kontaktu,
+        statusy=STATUSY  # przekazujemy listę statusów do szablonu
     )
+
+
 @kandydaci_bp.route('/przenies_do_historia/<int:kandydat_id>', methods=['POST'])
-def przenies_do_historia(kandydat_id):
-    # Pobierz kandydata z bazy
+def przenies_do_historia(kandydat_id: int) -> str:
     kandydat = Kandydat.query.get_or_404(kandydat_id)
-    
-    # Utwórz nowy wpis w tabeli Historia
     nowa_historia = Historia(
         kandydat_id=kandydat.id,
-        data_zatrudnienia=datetime.utcnow().date(),  # Aktualna data
-        stanowisko=request.form.get('stanowisko', 'Nie podano')  # Opcjonalne pole stanowiska
+        data_zatrudnienia=datetime.utcnow().date(),
+        stanowisko=request.form.get('stanowisko', 'Nie podano')
     )
     
     try:
-        # Dodaj do bazy i usuń kandydata z listy
         db.session.add(nowa_historia)
         db.session.delete(kandydat)
         db.session.commit()
@@ -190,5 +189,3 @@ def przenies_do_historia(kandydat_id):
         flash(f"Błąd podczas przenoszenia do Historii: {e}", "danger")
     
     return redirect(url_for('kandydaci_bp.lista_kandydatow'))
-
-
